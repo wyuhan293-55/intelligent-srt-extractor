@@ -1,0 +1,14 @@
+# Intelligent SRT Extractor — Dependencies
+# Python 3.10+ required
+
+# ASR Engines (choose one or both)
+faster-whisper>=1.0.0
+openai-whisper>=20231117
+
+# ML Runtime
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Utilities
+numpy>=1.24.0
+tqdm>=4.65.0
