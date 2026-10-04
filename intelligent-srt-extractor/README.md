@@ -55,7 +55,7 @@ python scripts/scan_and_classify.py "/path/to/video/folder"
 python scripts/transcribe.py "/path/to/video/folder" --model medium
 
 # 步骤 4：术语修正 + 质量检测
-python scripts/fix_terms.py "/path/to/video/folder" --fix
+python scripts/fix_terms.py "/path/to/video/folder" --fix\n\n# 步骤 5：合并同一案例下所有有效 SRT，生成案例素材母稿\npython scripts/merge_srt.py "/path/to/case/folder"
 ```
 
 ---
