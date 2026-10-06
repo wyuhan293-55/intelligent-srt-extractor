@@ -30,8 +30,8 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/YOUR_USERNAME/intelligent-srt-extractor.git
-cd intelligent-srt-extractor
+git clone https://github.com/wyuhan293-55/intelligent-srt-extractor.git
+cd intelligent-srt-extractor/intelligent-srt-extractor
 
 # 2. 安装 Python 依赖
 pip install -r requirements.txt
@@ -42,7 +42,7 @@ pip install -r requirements.txt
 # Linux:    sudo apt install ffmpeg
 ```
 
-### 四步完成字幕提取
+### 五步完成字幕提取与案例汇总
 
 ```bash
 # 步骤 1：扫描并智能分类
@@ -51,14 +51,29 @@ python scripts/scan_and_classify.py "/path/to/video/folder"
 # 步骤 2：根据分类结果，确认哪些视频真正需要转录
 # （不确定的视频会自动标记为"待确认"）
 
-# 步骤 3：只转录确认的视频
-python scripts/transcribe.py "/path/to/video/folder" --model medium
+# 步骤 3：逐个转录确认的视频（目录模式不会读取分类结果）
+python scripts/transcribe.py "/path/to/video/folder/已确认的视频.mp4" --model medium
 
 # 步骤 4：术语修正 + 质量检测
 python scripts/fix_terms.py "/path/to/video/folder" --fix
+
+# 步骤 5：把同一案例下所有有效 SRT 按标准格式整合成总字幕文档
+# （显式顺序模式：按工作流顺序传入文件，段标题自动取 文件夹名-视频编号）
+python scripts/merge_srt.py --out "/path/to/case/folder/姓名-字幕汇总.srt" "/path/to/case/folder/术前采访/a.srt" "/path/to/case/folder/术前面诊/b.srt"
+
+# 或自动扫描模式（自然排序，需人工核对顺序）
+python scripts/merge_srt.py --folder "/path/to/case/folder" --name 姓名
 ```
 
 ---
+
+## 案例汇总格式
+
+每段标题为 `文件夹名-视频编号`，字幕序号各自从 1 开始，原时间行和文字保留，不做累计偏移、不合并拆分。输出 `{姓名}-字幕汇总.srt`，编码为 UTF-8 BOM + CRLF。
+
+空字幕、整条水印/已知幻觉和已有汇总文件会跳过并报告原因；正常句子中的同名词不删除。输入读取或解析失败、全部无有效字幕时，不覆盖旧汇总。合并不会改写源 SRT；术语修正应在合并前完成，`fix_terms.py` 会跳过汇总文件。
+
+这是带段标题的素材检索文档，各视频时间独立，不能直接作为单条视频的连续播放字幕。
 
 ## 🔄 完整工作流
 
@@ -113,7 +128,8 @@ intelligent-srt-extractor/
 ├── scripts/
 │   ├── scan_and_classify.py     # 📊 扫描 + 智能分类
 │   ├── transcribe.py            # 🎙️ Whisper 双引擎转录
-│   └── fix_terms.py             # 🔧 术语修正 + 质量检测
+│   ├── fix_terms.py             # 🔧 术语修正 + 质量检测
+│   └── merge_srt.py             # 🧩 案例级 SRT 合并（标准格式）
 └── lexicon/
     └── medical_terms.py         # 📖 医美术语词典（可扩展）
 ```
@@ -187,9 +203,18 @@ TERM_CORRECTIONS = {
 > "生成字幕 /path/to/videos"
 > "转srt /path/to/videos"
 
-触发后自动执行全流程：扫描 → 分类 → 提问 → 转录 → 修正。
+触发后执行：扫描 → 分类 → 提问 → 转录 → 修正；需要总文档时再按确认顺序合并。
 
 ---
+
+## 验证
+
+在包含 `scripts/` 的目录运行：
+
+```bash
+python -m unittest discover -s tests -v
+python -m compileall -q scripts lexicon
+```
 
 ## 📄 License
 

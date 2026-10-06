@@ -126,6 +126,9 @@ def scan_folder(folder: str, fix: bool = False, dry_run: bool = True):
     for root, _, files in os.walk(folder):
         for f in files:
             if f.lower().endswith('.srt'):
+                if any(marker in f for marker in ('字幕汇总', '案例素材母稿')):
+                    print(f"  跳过汇总文档（保留段标题和格式）: {os.path.join(root, f)}")
+                    continue
                 srt_files.append(os.path.join(root, f))
 
     if not srt_files:

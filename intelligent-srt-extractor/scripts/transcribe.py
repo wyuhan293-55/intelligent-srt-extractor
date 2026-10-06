@@ -188,6 +188,7 @@ def transcribe_openai(video_path, model) -> dict | None:
 # ── Main ───────────────────────────────────────────────────────────
 
 def main():
+    global WHISPER_LANG, SKIP_EXISTING_SRT
     parser = argparse.ArgumentParser(description='Video → SRT transcription (dual-engine Whisper)')
     parser.add_argument('path', help='Video file or directory')
     parser.add_argument('--model', default=WHISPER_MODEL,
@@ -200,7 +201,6 @@ def main():
     parser.add_argument('--force', action='store_true', help='Overwrite existing SRT files')
     args = parser.parse_args()
 
-    global WHISPER_LANG, SKIP_EXISTING_SRT
     WHISPER_LANG = args.lang
     if args.force:
         SKIP_EXISTING_SRT = False
